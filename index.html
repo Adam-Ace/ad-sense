@@ -2,118 +2,164 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>TikTok Style Ad Viewer (Test Mode)</title>
+  <title>TikTok-Style Ad Player</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script src="https://imasdk.googleapis.com/js/sdkloader/ima3.js"></script>
   <style>
     html, body {
       margin: 0;
       padding: 0;
       background: #000;
-      height: 100%;
       overflow: hidden;
+      height: 100%;
     }
     #video-container {
+      position: relative;
       width: 100vw;
       height: 100vh;
-      position: relative;
       background: black;
     }
-    video {
+    #ad-video {
       width: 100%;
       height: 100%;
       object-fit: cover;
       position: absolute;
       top: 0;
       left: 0;
+      z-index: 1;
+    }
+    #ad-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 2;
+      pointer-events: none;
     }
     #start-button {
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      padding: 20px 40px;
+      z-index: 3;
       font-size: 20px;
-      z-index: 10;
-      background: white;
+      padding: 20px 30px;
+      background: #fff;
       border: none;
       cursor: pointer;
+    }
+    #log {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      color: white;
+      background: rgba(0, 0, 0, 0.5);
+      padding: 8px;
+      font-size: 14px;
+      z-index: 5;
+      max-width: 90vw;
     }
   </style>
 </head>
 <body>
   <div id="video-container">
-    <video id="video" playsinline muted></video>
+    <video id="ad-video" playsinline muted></video>
+    <div id="ad-container"></div>
     <button id="start-button">Start Ad Feed</button>
+    <div id="log">Ready</div>
   </div>
 
   <script>
     const adTags = [
-      // Google test skippable ad
-      "https://pubads.g.doubleclick.net/gampad/ads?iu=/124319096/external/single_ad_samples&description_url=https%3A%2F%2Fexample.com&env=vp&output=vast&unviewed_position_start=1&cust_params=sample_ct%3Dskippablelinear&correlator=",
-      // Google test non-skippable ad
-      "https://pubads.g.doubleclick.net/gampad/ads?iu=/124319096/external/single_ad_samples&description_url=https%3A%2F%2Fexample.com&env=vp&output=vast&unviewed_position_start=1&cust_params=sample_ct%3Dnonlinear&correlator="
+      "https://pubads.g.doubleclick.net/gampad/ads?iu=/124319096/external/single_ad_samples&description_url=https%3A%2F%2Fexample.com&env=vp&output=vast&unviewed_position_start=1&cust_params=sample_ct%3Dskippablelinear&correlator="
     ];
+
     const fallbackVideo = "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4";
 
     let currentAdIndex = 0;
-    let adsLoader, adsManager, adDisplayContainer;
-    const video = document.getElementById("video");
-    const videoContainer = document.getElementById("video-container");
+    let adViews = parseInt(localStorage.getItem("adViews") || "0");
+
+    const video = document.getElementById("ad-video");
+    const adContainer = document.getElementById("ad-container");
     const startButton = document.getElementById("start-button");
+    const logBox = document.getElementById("log");
+    let adsLoader, adsManager, adDisplayContainer;
 
-    const adContainer = document.createElement("div");
-    adContainer.id = "ad-container";
-    adContainer.style.position = "absolute";
-    adContainer.style.top = "0";
-    adContainer.style.left = "0";
-    adContainer.style.width = "100%";
-    adContainer.style.height = "100%";
-    adContainer.style.zIndex = "5";
-    videoContainer.appendChild(adContainer);
-
-    startButton.addEventListener("click", () => {
-      startButton.style.display = "none";
-      adDisplayContainer = new google.ima.AdDisplayContainer(adContainer, video);
-      adDisplayContainer.initialize();
-      initIMA();
-      requestAd(adTags[currentAdIndex]);
-    });
+    function log(msg) {
+      console.log(msg);
+      logBox.textContent = msg;
+    }
 
     function initIMA() {
+      google.ima.settings.setVpaidMode(google.ima.ImaSdkSettings.VpaidMode.DISABLED);
+      adDisplayContainer = new google.ima.AdDisplayContainer(adContainer, video);
       adsLoader = new google.ima.AdsLoader(adDisplayContainer);
+
       adsLoader.addEventListener(google.ima.AdsManagerLoadedEvent.Type.ADS_MANAGER_LOADED, onAdsManagerLoaded);
       adsLoader.addEventListener(google.ima.AdErrorEvent.Type.AD_ERROR, onAdError);
     }
 
     function requestAd(adTagUrl) {
+      log("Requesting Ad...");
+      adDisplayContainer.initialize();
+
       const adsRequest = new google.ima.AdsRequest();
       adsRequest.adTagUrl = adTagUrl;
       adsRequest.linearAdSlotWidth = window.innerWidth;
       adsRequest.linearAdSlotHeight = window.innerHeight;
       adsRequest.nonLinearAdSlotWidth = window.innerWidth;
       adsRequest.nonLinearAdSlotHeight = window.innerHeight;
+
       adsLoader.requestAds(adsRequest);
     }
 
-    function onAdsManagerLoaded(event) {
-      adsManager = event.getAdsManager(video);
-      adsManager.addEventListener(google.ima.AdEvent.Type.ALL_ADS_COMPLETED, () => {
-        nextAd();
+    function onAdsManagerLoaded(e) {
+      adsManager = e.getAdsManager(video);
+
+      adsManager.addEventListener(google.ima.AdEvent.Type.STARTED, () => {
+        log("✅ Ad Started");
       });
+
+      adsManager.addEventListener(google.ima.AdEvent.Type.COMPLETE, () => {
+        log("✅ Ad Completed");
+        adViews++;
+        localStorage.setItem("adViews", adViews);
+        setTimeout(nextAd, 1000);
+      });
+
+      adsManager.addEventListener(google.ima.AdEvent.Type.SKIPPED, () => {
+        log("❌ Ad Skipped");
+        setTimeout(nextAd, 1000);
+      });
+
+      adsManager.addEventListener(google.ima.AdEvent.Type.CLICK, () => {
+        log("🖱️ Ad Clicked");
+      });
+
+      adsManager.addEventListener(google.ima.AdEvent.Type.ALL_ADS_COMPLETED, () => {
+        log("ℹ️ All Ads Completed");
+      });
+
       try {
         adsManager.init(window.innerWidth, window.innerHeight, google.ima.ViewMode.NORMAL);
         adsManager.start();
-      } catch (e) {
-        console.error("Ad start error:", e);
+      } catch (err) {
+        log("⚠️ Ad error on start: " + err.message);
         playFallback();
       }
     }
 
     function onAdError(e) {
-      console.warn("Ad error:", e.getError());
+      log("⚠️ Ad Error: " + e.getError().toString());
       adsManager?.destroy();
       playFallback();
+    }
+
+    function playFallback() {
+      video.src = fallbackVideo;
+      video.play();
+      setTimeout(nextAd, 10000); // fallback plays for 10s
     }
 
     function nextAd() {
@@ -121,30 +167,31 @@
       requestAd(adTags[currentAdIndex]);
     }
 
-    function playFallback() {
-      video.src = fallbackVideo;
-      video.play();
-      setTimeout(() => {
-        nextAd();
-      }, 10000); // Play fallback video for 10 seconds
-    }
+    // Start Button
+    startButton.addEventListener("click", () => {
+      startButton.style.display = "none";
+      initIMA();
+      requestAd(adTags[currentAdIndex]);
+    });
 
     // Swipe Detection
-    let touchStartY = 0;
-    let touchEndY = 0;
+    let startY = null;
 
     document.addEventListener("touchstart", (e) => {
-      touchStartY = e.changedTouches[0].screenY;
+      startY = e.changedTouches[0].screenY;
     });
 
     document.addEventListener("touchend", (e) => {
-      touchEndY = e.changedTouches[0].screenY;
-      if (Math.abs(touchStartY - touchEndY) > 50) {
+      if (!startY) return;
+      let endY = e.changedTouches[0].screenY;
+      if (Math.abs(endY - startY) > 50) {
         adsManager?.destroy();
         nextAd();
       }
+      startY = null;
     });
   </script>
 </body>
 </html>
+
 
