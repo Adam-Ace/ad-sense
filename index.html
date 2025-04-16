@@ -1,34 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>YouTube Shorts Scroller</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     html, body {
       margin: 0;
       padding: 0;
-      background: black;
-      overflow: hidden;
       height: 100%;
+      overflow: hidden;
+      background: #000;
     }
-
     #shorts-feed {
       height: 100vh;
       overflow-y: scroll;
       scroll-snap-type: y mandatory;
     }
-
     .short-wrapper {
+      height: 100vh;
       scroll-snap-align: start;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: black;
+    }
+    iframe {
       width: 100vw;
       height: 100vh;
-      position: relative;
-    }
-
-    iframe {
-      width: 100%;
-      height: 100%;
       border: none;
     }
   </style>
@@ -37,25 +36,26 @@
   <div id="shorts-feed"></div>
 
   <script>
-    const shortsFeed = document.getElementById("shorts-feed");
+    const shortsFeed = document.getElementById('shorts-feed');
 
-    // Just put the video ID here (from YouTube Shorts links)
-    const shortVideoIds = [
-      "TGkP5po4wYQ",
-      "GJE8uF9IK08",
-      "gNBNcS9sTtM",
-      "RZhEoOAJScQ",
-      "rTgm8DG-D6k"
+    // Replace these with your favorite or random YouTube Shorts IDs
+    const youtubeShorts = [
+      "kG2SEU2N1xQ", // cat
+      "6zj3NLfv96U", // meme
+      "K4TOrB7at0Y", // animation
+      "cM1Im3_3pIA", // music
+      "T9U9sH1FMp0", // chill vibes
+      "3VgBD3aFfNM", // funny
+      "0NOZRXNAAeE", // more fun
     ];
 
-    function createShortEmbed(videoId) {
-      const wrapper = document.createElement("div");
-      wrapper.className = "short-wrapper";
+    function createShort(id) {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'short-wrapper';
 
-      const iframe = document.createElement("iframe");
-      iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&playsinline=1&enablejsapi=1&modestbranding=1&rel=0&loop=1&playlist=${videoId}`;
-      iframe.allow =
-        "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
+      const iframe = document.createElement('iframe');
+      iframe.src = `https://www.youtube.com/embed/${id}?autoplay=1&mute=1&playsinline=1&controls=0&loop=1&rel=0`;
+      iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
       iframe.allowFullscreen = true;
 
       wrapper.appendChild(iframe);
@@ -63,8 +63,8 @@
     }
 
     function loadShorts() {
-      shortVideoIds.forEach((id) => {
-        const el = createShortEmbed(id);
+      youtubeShorts.forEach(id => {
+        const el = createShort(id);
         shortsFeed.appendChild(el);
       });
     }
@@ -73,5 +73,6 @@
   </script>
 </body>
 </html>
+
 
 
