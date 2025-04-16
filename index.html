@@ -2,93 +2,74 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>TikTok-Style Video Feed</title>
+  <title>YouTube Shorts Scroller</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
-    * {
+    html, body {
       margin: 0;
       padding: 0;
-      box-sizing: border-box;
-    }
-    body, html {
-      width: 100%;
-      height: 100%;
       background: black;
       overflow: hidden;
+      height: 100%;
     }
-    #video-feed {
+
+    #shorts-feed {
       height: 100vh;
-      scroll-snap-type: y mandatory;
       overflow-y: scroll;
+      scroll-snap-type: y mandatory;
     }
-    .video-wrapper {
+
+    .short-wrapper {
       scroll-snap-align: start;
       width: 100vw;
       height: 100vh;
       position: relative;
     }
-    video {
+
+    iframe {
       width: 100%;
       height: 100%;
-      object-fit: cover;
+      border: none;
     }
   </style>
 </head>
 <body>
-  <div id="video-feed"></div>
+  <div id="shorts-feed"></div>
 
   <script>
-    const videoFeed = document.getElementById('video-feed');
+    const shortsFeed = document.getElementById("shorts-feed");
 
-    const videoUrls = [
-      'https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4',
-      'https://sample-videos.com/video123/mp4/720/sample_960x400_ocean_with_audio.mp4',
-      'https://sample-videos.com/video123/mp4/720/sample_960x400_road_with_audio.mp4',
+    // Just put the video ID here (from YouTube Shorts links)
+    const shortVideoIds = [
+      "TGkP5po4wYQ",
+      "GJE8uF9IK08",
+      "gNBNcS9sTtM",
+      "RZhEoOAJScQ",
+      "rTgm8DG-D6k"
     ];
 
-    function createVideoElement(src) {
-      const wrapper = document.createElement('div');
-      wrapper.className = 'video-wrapper';
+    function createShortEmbed(videoId) {
+      const wrapper = document.createElement("div");
+      wrapper.className = "short-wrapper";
 
-      const video = document.createElement('video');
-      video.src = src;
-      video.setAttribute('playsinline', '');
-      video.setAttribute('muted', '');
-      video.setAttribute('loop', '');
-      video.preload = 'auto';
+      const iframe = document.createElement("iframe");
+      iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&playsinline=1&enablejsapi=1&modestbranding=1&rel=0&loop=1&playlist=${videoId}`;
+      iframe.allow =
+        "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
+      iframe.allowFullscreen = true;
 
-      wrapper.appendChild(video);
+      wrapper.appendChild(iframe);
       return wrapper;
     }
 
-    function loadVideos() {
-      videoUrls.forEach(url => {
-        const el = createVideoElement(url);
-        videoFeed.appendChild(el);
+    function loadShorts() {
+      shortVideoIds.forEach((id) => {
+        const el = createShortEmbed(id);
+        shortsFeed.appendChild(el);
       });
     }
 
-    function handleAutoplay() {
-      const videos = document.querySelectorAll('video');
-
-      const observer = new IntersectionObserver(entries => {
-        entries.forEach(entry => {
-          const video = entry.target;
-          if (entry.isIntersecting) {
-            video.play().catch(() => {});
-          } else {
-            video.pause();
-          }
-        });
-      }, {
-        threshold: 0.8
-      });
-
-      videos.forEach(video => observer.observe(video));
-    }
-
-    loadVideos();
-    window.onload = handleAutoplay;
+    loadShorts();
   </script>
 </body>
 </html>
