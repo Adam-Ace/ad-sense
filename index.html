@@ -3,9 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>TikTok Style Ad Viewer</title>
-  <script src="https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&cust_params=sample_ct%3Dlinear&env=vp&output=vast&unviewed_position_start=1&url=[referrer_url]&description_url=https%3A%2F%2Fexample.com&correlator=
-"></script>
+  <title>TikTok Style Ad Viewer (Test Mode)</title>
+  <script src="https://imasdk.googleapis.com/js/sdkloader/ima3.js"></script>
   <style>
     html, body {
       margin: 0;
@@ -50,10 +49,10 @@
 
   <script>
     const adTags = [
-      "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&cust_params=sample_ct%3Dlinear&env=vp&output=vast&unviewed_position_start=1&url=[referrer_url]&description_url=https%3A%2F%2Fexample.com&correlator=
-",
-      "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&cust_params=sample_ct%3Dlinear&env=vp&output=vast&unviewed_position_start=1&url=[referrer_url]&description_url=https%3A%2F%2Fexample.com&correlator=
-"
+      // Google test skippable ad
+      "https://pubads.g.doubleclick.net/gampad/ads?iu=/124319096/external/single_ad_samples&description_url=https%3A%2F%2Fexample.com&env=vp&output=vast&unviewed_position_start=1&cust_params=sample_ct%3Dskippablelinear&correlator=",
+      // Google test non-skippable ad
+      "https://pubads.g.doubleclick.net/gampad/ads?iu=/124319096/external/single_ad_samples&description_url=https%3A%2F%2Fexample.com&env=vp&output=vast&unviewed_position_start=1&cust_params=sample_ct%3Dnonlinear&correlator="
     ];
     const fallbackVideo = "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4";
 
@@ -148,3 +147,4 @@
   </script>
 </body>
 </html>
+
