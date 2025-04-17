@@ -54,8 +54,8 @@
 <div id="feed"></div>
 
 <script>
-  // Provided Adsterra Smart Links
-  const adLinks = [
+  // Provide your Adsterra In-Stream Video Ad links
+  const videoAds = [
     "https://www.profitableratecpm.com/dpm1etfub?key=c17d741f83dfa305ef138e543d71ac07",
     "https://www.profitableratecpm.com/pwk5nxk3dw?key=94c18238bd565dc5cd83ce5639cfdb1d",
     "https://www.profitableratecpm.com/y62e8qmuip?key=245c2ca7361808966960862f591ce56e",
@@ -69,7 +69,7 @@
   let timers = [];
 
   // Function to create an ad slide
-  function createAdSlide(index, url) {
+  function createVideoAdSlide(index, url) {
     const slide = document.createElement('div');
     slide.className = 'ad-slide';
     slide.dataset.index = index;
@@ -86,44 +86,44 @@
     return slide;
   }
 
-  // Load initial set of ads
-  function loadSlides() {
-    adLinks.forEach((link, index) => {
-      const slide = createAdSlide(index, link);
+  // Load the video ads
+  function loadVideoAds() {
+    videoAds.forEach((link, index) => {
+      const slide = createVideoAdSlide(index, link);
       feed.appendChild(slide);
       rewarded[index] = false;
       timers[index] = null;
     });
   }
 
-  // Load more ads when user scrolls to the bottom
-  function loadMoreAds() {
+  // Function to load more ads dynamically when scrolled
+  function loadMoreVideoAds() {
     if (feed.scrollTop + feed.clientHeight >= feed.scrollHeight - 200) {
-      const nextAdIndex = adLinks.length;
-      const newLink = adLinks[nextAdIndex % adLinks.length]; // Loop through the ads
-      adLinks.push(newLink);  // Add the new ad link to the list
-      const newSlide = createAdSlide(nextAdIndex, newLink);
+      const nextAdIndex = videoAds.length;
+      const newLink = videoAds[nextAdIndex % videoAds.length]; // Loop through the ads
+      videoAds.push(newLink);  // Add the new ad link to the list
+      const newSlide = createVideoAdSlide(nextAdIndex, newLink);
       feed.appendChild(newSlide); // Add the new slide to the feed
       rewarded[nextAdIndex] = false;
       timers[nextAdIndex] = null;
     }
   }
 
-  // Start or stop the timer based on ad view
+  // Timer for tracking the video ad view
   function startTimer(index) {
     if (rewarded[index]) return;
     timers[index] = setTimeout(() => {
       rewarded[index] = true;
-      console.log(`✅ Ad ${index + 1} viewed for 15s — reward granted`);
+      console.log(`✅ Video Ad ${index + 1} viewed for 15s — reward granted`);
 
-      // Communicate with the native app or backend
+      // Send the reward notification to the app or backend
       if (window.ReactNativeWebView) {
-        window.ReactNativeWebView.postMessage("adViewed");
+        window.ReactNativeWebView.postMessage("videoAdViewed");
       } else {
-        // Hook into C# or Firebase logic here
-        // window.external.notify("adViewed");
+        // For backend or external integration
+        // window.external.notify("videoAdViewed");
       }
-    }, 15000); // Timer set to 15 seconds
+    }, 15000); // Timer set to 15 seconds per ad view
   }
 
   function stopTimer(index) {
@@ -135,27 +135,29 @@
 
   function handleScroll() {
     const index = Math.round(feed.scrollTop / window.innerHeight);
-    for (let i = 0; i < adLinks.length; i++) {
+    for (let i = 0; i < videoAds.length; i++) {
       if (i === index) {
         startTimer(i);
       } else {
         stopTimer(i);
       }
     }
-    loadMoreAds(); // Check if we need to load more ads as user scrolls
+    loadMoreVideoAds(); // Check if we need to load more video ads as user scrolls
   }
 
   feed.addEventListener('scroll', () => {
     window.requestAnimationFrame(handleScroll);
   });
 
-  // Start the feed by loading the initial set of ads
-  loadSlides();
+  // Start loading the video ads
+  loadVideoAds();
   startTimer(0); // Start the first slide's timer immediately
 
 </script>
 
 </body>
+</html>
+
 </html>
 
 
