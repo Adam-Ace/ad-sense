@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Ad Reward Feed</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     html, body {
       margin: 0;
@@ -11,13 +11,13 @@
       height: 100%;
       overflow: hidden;
       background: #000;
-      font-family: sans-serif;
     }
 
     #feed {
       height: 100vh;
       overflow-y: scroll;
       scroll-snap-type: y mandatory;
+      position: relative;
     }
 
     .ad-slide {
@@ -32,137 +32,122 @@
       position: relative;
     }
 
-    .slide-content {
-      z-index: 1;
-      text-align: center;
+    iframe {
+      width: 100vw;
+      height: 100vh;
+      border: none;
     }
 
     .overlay {
       position: absolute;
-      top: 0; bottom: 0;
-      left: 0; right: 0;
-      z-index: 0;
-    }
-
-    .indicator {
-      position: absolute;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 1rem;
-      opacity: 0.7;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 2;
     }
   </style>
 </head>
 <body>
 
-  <div id="feed"></div>
+<div id="feed"></div>
 
-  <!-- ✅ Adsterra Social Bar Script -->
-  <script type='text/javascript' src='//pl26408161.profitableratecpm.com/f9/df/f2/f9dff23c91b1b7e6f98cd017d227178e.js'></script>
+<script>
+  const adLinks = [
+    "https://www.profitableratecpm.com/dpm1etfub?key=c17d741f83dfa305ef138e543d71ac07",
+    "https://www.profitableratecpm.com/pwk5nxk3dw?key=94c18238bd565dc5cd83ce5639cfdb1d",
+    "https://www.profitableratecpm.com/y62e8qmuip?key=245c2ca7361808966960862f591ce56e",
+    "https://www.profitableratecpm.com/zimmt2y1?key=fc32af5a8e710aa46529742259967d49",
+    "https://www.profitableratecpm.com/d1s47ajq0?key=8f506c046ca8617da4327a299c88be85"
+  ];
 
-  <script>
-    const feed = document.getElementById('feed');
-    let currentSlide = 0;
-    let rewarded = {};
-    let timers = {};
-    let totalSlides = 0;
+  const feed = document.getElementById('feed');
+  let currentSlide = 0;
+  let rewarded = [];
+  let timers = [];
 
-    // Function to create ad slide
-    function createAdSlide(index) {
-      const slide = document.createElement('div');
-      slide.className = 'ad-slide';
-      slide.dataset.index = index;
+  // Function to create an ad slide
+  function createAdSlide(index, url) {
+    const slide = document.createElement('div');
+    slide.className = 'ad-slide';
+    slide.dataset.index = index;
 
-      const content = document.createElement('div');
-      content.className = 'slide-content';
-      content.textContent = `Ad ${index + 1}`;
+    const iframe = document.createElement('iframe');
+    iframe.src = url;
+    iframe.allow = "fullscreen; autoplay";
+    slide.appendChild(iframe);
 
-      const overlay = document.createElement('div');
-      overlay.className = 'overlay';
+    return slide;
+  }
 
-      const indicator = document.createElement('div');
-      indicator.className = 'indicator';
-      indicator.textContent = 'Watch this ad for 15s to earn rewards';
-
-      slide.appendChild(content);
-      slide.appendChild(overlay);
-      slide.appendChild(indicator);
-      return slide;
-    }
-
-    // Load more ads dynamically
-    function loadSlides(count = 3) {
-      for (let i = 0; i < count; i++) {
-        const slide = createAdSlide(totalSlides++);
-        feed.appendChild(slide);
-      }
-    }
-
-    // Start reward timer
-    function startTimer(index) {
-      if (rewarded[index]) return;
-      timers[index] = setTimeout(() => {
-        rewarded[index] = true;
-        console.log(`✅ Ad ${index + 1} viewed. Reward granted.`);
-
-        // Send reward to WebView (WebView2)
-        if (window.chrome && window.chrome.webview) {
-          window.chrome.webview.postMessage("adViewed");
-        }
-
-        // Or send to native Android WebView
-        if (window.ReactNativeWebView) {
-          window.ReactNativeWebView.postMessage("adViewed");
-        }
-
-        // Or send to backend API (custom)
-        fetch("/api/ad-viewed", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            slide: index,
-            timestamp: new Date().toISOString(),
-          }),
-        }).catch(e => console.warn("Tracking failed:", e));
-
-      }, 15000); // 15s required
-    }
-
-    // Stop reward timer
-    function stopTimer(index) {
-      if (timers[index]) {
-        clearTimeout(timers[index]);
-        timers[index] = null;
-      }
-    }
-
-    // Scroll handler
-    function handleScroll() {
-      const newIndex = Math.floor(feed.scrollTop / window.innerHeight);
-      if (newIndex !== currentSlide) {
-        stopTimer(currentSlide);
-        startTimer(newIndex);
-        currentSlide = newIndex;
-
-        // Load more slides if near bottom
-        if (newIndex + 2 >= totalSlides) {
-          loadSlides(3);
-        }
-      }
-    }
-
-    feed.addEventListener('scroll', () => {
-      window.requestAnimationFrame(handleScroll);
+  // Load initial set of ads
+  function loadSlides() {
+    adLinks.forEach((link, index) => {
+      const slide = createAdSlide(index, link);
+      feed.appendChild(slide);
+      rewarded[index] = false;
+      timers[index] = null;
     });
+  }
 
-    // Initial setup
-    loadSlides(5);
-    startTimer(0);
-  </script>
+  // Load more ads when user scrolls to the bottom
+  function loadMoreAds() {
+    if (feed.scrollTop + feed.clientHeight >= feed.scrollHeight) {
+      const nextAdIndex = adLinks.length;
+      const newLink = `https://your-adsterra-smartlink-${nextAdIndex + 1}.com`; // Replace with real link
+      adLinks.push(newLink);  // Add the new ad link to the list
+      const newSlide = createAdSlide(nextAdIndex, newLink);
+      feed.appendChild(newSlide); // Add the new slide to the feed
+      rewarded[nextAdIndex] = false;
+      timers[nextAdIndex] = null;
+    }
+  }
+
+  // Start or stop the timer based on ad view
+  function startTimer(index) {
+    if (rewarded[index]) return;
+    timers[index] = setTimeout(() => {
+      rewarded[index] = true;
+      console.log(`✅ Ad ${index + 1} viewed for 15s — reward granted`);
+
+      // Communicate with the native app or backend
+      if (window.ReactNativeWebView) {
+        window.ReactNativeWebView.postMessage("adViewed");
+      } else {
+        // Hook into C# or Firebase logic here
+        // window.external.notify("adViewed");
+      }
+    }, 15000);
+  }
+
+  function stopTimer(index) {
+    if (timers[index]) {
+      clearTimeout(timers[index]);
+      timers[index] = null;
+    }
+  }
+
+  function handleScroll() {
+    const index = Math.round(feed.scrollTop / window.innerHeight);
+    for (let i = 0; i < adLinks.length; i++) {
+      if (i === index) {
+        startTimer(i);
+      } else {
+        stopTimer(i);
+      }
+    }
+    loadMoreAds(); // Check if we need to load more ads as user scrolls
+  }
+
+  feed.addEventListener('scroll', () => {
+    window.requestAnimationFrame(handleScroll);
+  });
+
+  loadSlides();
+  startTimer(0); // Start the first slide's timer immediately
+</script>
+
 </body>
-</html>
-
 </html>
 
 
