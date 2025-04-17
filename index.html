@@ -17,7 +17,6 @@
       height: 100vh;
       overflow-y: scroll;
       scroll-snap-type: y mandatory;
-      position: relative;
     }
 
     .ad-slide {
@@ -32,133 +31,128 @@
       position: relative;
     }
 
-    iframe {
-      width: 100vw;
-      height: 100vh;
-      border: none;
+    .slide-content {
+      z-index: 1;
+      text-align: center;
     }
 
     .overlay {
       position: absolute;
       top: 0;
+      bottom: 0;
       left: 0;
       right: 0;
-      bottom: 0;
-      z-index: 2;
-      background: rgba(0, 0, 0, 0.5);
+      z-index: 0;
+    }
+
+    /* Hidden preloaded ad containers */
+    .preload {
+      display: none;
     }
   </style>
 </head>
 <body>
 
-<div id="feed"></div>
+  <!-- Adsterra Smart Links -->
+  <script type='text/javascript' src='//pl26408161.profitableratecpm.com/f9/df/f2/f9dff23c91b1b7e6f98cd017d227178e.js'></script>
 
-<script>
-  // Provide your Adsterra In-Stream Video Ad links
-  const videoAds = [
-    "https://www.profitableratecpm.com/dpm1etfub?key=c17d741f83dfa305ef138e543d71ac07",
-    "https://www.profitableratecpm.com/pwk5nxk3dw?key=94c18238bd565dc5cd83ce5639cfdb1d",
-    "https://www.profitableratecpm.com/y62e8qmuip?key=245c2ca7361808966960862f591ce56e",
-    "https://www.profitableratecpm.com/zimmt2y1?key=fc32af5a8e710aa46529742259967d49",
-    "https://www.profitableratecpm.com/d1s47ajq0?key=8f506c046ca8617da4327a299c88be85"
-  ];
+  <div id="feed">
+    <!-- Preloaded ad containers (hidden until needed) -->
+    <div class="preload" id="ad1"></div>
+    <div class="preload" id="ad2"></div>
+    <div class="preload" id="ad3"></div>
+    <div class="preload" id="ad4"></div>
+    <div class="preload" id="ad5"></div>
 
-  const feed = document.getElementById('feed');
-  let currentSlide = 0;
-  let rewarded = [];
-  let timers = [];
+    <!-- Main feed that displays ads -->
+    <div class="ad-slide" data-index="0">
+      <div class="slide-content">Ad 1</div>
+      <div class="overlay"></div>
+    </div>
+    <div class="ad-slide" data-index="1">
+      <div class="slide-content">Ad 2</div>
+      <div class="overlay"></div>
+    </div>
+    <div class="ad-slide" data-index="2">
+      <div class="slide-content">Ad 3</div>
+      <div class="overlay"></div>
+    </div>
+  </div>
 
-  // Function to create an ad slide
-  function createVideoAdSlide(index, url) {
-    const slide = document.createElement('div');
-    slide.className = 'ad-slide';
-    slide.dataset.index = index;
+  <script>
+    const feed = document.getElementById('feed');
+    const slides = document.querySelectorAll('.ad-slide');
+    const preloadAds = document.querySelectorAll('.preload'); // Preloaded ad containers
+    let currentSlide = 0;
+    let slideTimers = Array(slides.length).fill(null);
+    let rewarded = Array(slides.length).fill(false);
 
-    const iframe = document.createElement('iframe');
-    iframe.src = url;
-    iframe.allow = "fullscreen; autoplay";
-    slide.appendChild(iframe);
+    const adLinks = [
+      "https://www.profitableratecpm.com/dpm1etfub?key=c17d741f83dfa305ef138e543d71ac07",
+      "https://www.profitableratecpm.com/pwk5nxk3dw?key=94c18238bd565dc5cd83ce5639cfdb1d",
+      "https://www.profitableratecpm.com/y62e8qmuip?key=245c2ca7361808966960862f591ce56e",
+      "https://www.profitableratecpm.com/zimmt2y1?key=fc32af5a8e710aa46529742259967d49",
+      "https://www.profitableratecpm.com/d1s47ajq0?key=8f506c046ca8617da4327a299c88be85",
+      "https://www.profitableratecpm.com/hihjwvckn?key=40d0024813cadf56aa2ab25193185497"
+    ];
 
-    const overlay = document.createElement('div');
-    overlay.className = 'overlay';
-    slide.appendChild(overlay);
+    function handleScroll() {
+      const newSlide = Math.round(feed.scrollTop / window.innerHeight);
+      if (newSlide !== currentSlide) {
+        stopTimer(currentSlide);
+        startTimer(newSlide);
+        currentSlide = newSlide;
+      }
+    }
 
-    return slide;
-  }
+    function preloadAd(index) {
+      // Load the ad iframe into the hidden preload container
+      const iframe = document.createElement('iframe');
+      iframe.src = adLinks[index];
+      iframe.width = '100%';
+      iframe.height = '100%';
+      iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
+      iframe.allowFullscreen = true;
 
-  // Load the video ads
-  function loadVideoAds() {
-    videoAds.forEach((link, index) => {
-      const slide = createVideoAdSlide(index, link);
-      feed.appendChild(slide);
-      rewarded[index] = false;
-      timers[index] = null;
+      preloadAds[index].appendChild(iframe);
+    }
+
+    function startTimer(index) {
+      if (rewarded[index]) return;
+      slideTimers[index] = setTimeout(() => {
+        rewarded[index] = true;
+        console.log(`✅ Ad ${index + 1} viewed! Reward granted.`);
+        
+        // 🔄 Communicate to the app or backend
+        if (window.ReactNativeWebView) {
+          window.ReactNativeWebView.postMessage("adViewed");
+        }
+      }, 15000); // 15 seconds required to reward
+    }
+
+    function stopTimer(index) {
+      if (slideTimers[index]) {
+        clearTimeout(slideTimers[index]);
+        slideTimers[index] = null;
+      }
+    }
+
+    // Initialize preloading of ads
+    preloadAds.forEach((ad, index) => {
+      preloadAd(index);
     });
-  }
 
-  // Function to load more ads dynamically when scrolled
-  function loadMoreVideoAds() {
-    if (feed.scrollTop + feed.clientHeight >= feed.scrollHeight - 200) {
-      const nextAdIndex = videoAds.length;
-      const newLink = videoAds[nextAdIndex % videoAds.length]; // Loop through the ads
-      videoAds.push(newLink);  // Add the new ad link to the list
-      const newSlide = createVideoAdSlide(nextAdIndex, newLink);
-      feed.appendChild(newSlide); // Add the new slide to the feed
-      rewarded[nextAdIndex] = false;
-      timers[nextAdIndex] = null;
-    }
-  }
+    feed.addEventListener('scroll', () => {
+      window.requestAnimationFrame(handleScroll);
+    });
 
-  // Timer for tracking the video ad view
-  function startTimer(index) {
-    if (rewarded[index]) return;
-    timers[index] = setTimeout(() => {
-      rewarded[index] = true;
-      console.log(`✅ Video Ad ${index + 1} viewed for 15s — reward granted`);
-
-      // Send the reward notification to the app or backend
-      if (window.ReactNativeWebView) {
-        window.ReactNativeWebView.postMessage("videoAdViewed");
-      } else {
-        // For backend or external integration
-        // window.external.notify("videoAdViewed");
-      }
-    }, 15000); // Timer set to 15 seconds per ad view
-  }
-
-  function stopTimer(index) {
-    if (timers[index]) {
-      clearTimeout(timers[index]);
-      timers[index] = null;
-    }
-  }
-
-  function handleScroll() {
-    const index = Math.round(feed.scrollTop / window.innerHeight);
-    for (let i = 0; i < videoAds.length; i++) {
-      if (i === index) {
-        startTimer(i);
-      } else {
-        stopTimer(i);
-      }
-    }
-    loadMoreVideoAds(); // Check if we need to load more video ads as user scrolls
-  }
-
-  feed.addEventListener('scroll', () => {
-    window.requestAnimationFrame(handleScroll);
-  });
-
-  // Start loading the video ads
-  loadVideoAds();
-  startTimer(0); // Start the first slide's timer immediately
-
-</script>
+    // Start tracking the first slide immediately
+    startTimer(0);
+  </script>
 
 </body>
 </html>
 
-</html>
 
 
 
