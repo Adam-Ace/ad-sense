@@ -45,6 +45,7 @@
       right: 0;
       bottom: 0;
       z-index: 2;
+      background: rgba(0, 0, 0, 0.5);
     }
   </style>
 </head>
@@ -53,6 +54,7 @@
 <div id="feed"></div>
 
 <script>
+  // Provided Adsterra Smart Links
   const adLinks = [
     "https://www.profitableratecpm.com/dpm1etfub?key=c17d741f83dfa305ef138e543d71ac07",
     "https://www.profitableratecpm.com/pwk5nxk3dw?key=94c18238bd565dc5cd83ce5639cfdb1d",
@@ -77,6 +79,10 @@
     iframe.allow = "fullscreen; autoplay";
     slide.appendChild(iframe);
 
+    const overlay = document.createElement('div');
+    overlay.className = 'overlay';
+    slide.appendChild(overlay);
+
     return slide;
   }
 
@@ -92,9 +98,9 @@
 
   // Load more ads when user scrolls to the bottom
   function loadMoreAds() {
-    if (feed.scrollTop + feed.clientHeight >= feed.scrollHeight) {
+    if (feed.scrollTop + feed.clientHeight >= feed.scrollHeight - 200) {
       const nextAdIndex = adLinks.length;
-      const newLink = `https://your-adsterra-smartlink-${nextAdIndex + 1}.com`; // Replace with real link
+      const newLink = adLinks[nextAdIndex % adLinks.length]; // Loop through the ads
       adLinks.push(newLink);  // Add the new ad link to the list
       const newSlide = createAdSlide(nextAdIndex, newLink);
       feed.appendChild(newSlide); // Add the new slide to the feed
@@ -117,7 +123,7 @@
         // Hook into C# or Firebase logic here
         // window.external.notify("adViewed");
       }
-    }, 15000);
+    }, 15000); // Timer set to 15 seconds
   }
 
   function stopTimer(index) {
@@ -143,12 +149,15 @@
     window.requestAnimationFrame(handleScroll);
   });
 
+  // Start the feed by loading the initial set of ads
   loadSlides();
   startTimer(0); // Start the first slide's timer immediately
+
 </script>
 
 </body>
 </html>
+
 
 
 
