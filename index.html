@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Ad Feed</title>
+  <title>Ad Reward Feed</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     html, body {
@@ -11,7 +11,6 @@
       height: 100%;
       overflow: hidden;
       background: #000;
-      font-family: Arial, sans-serif;
     }
 
     #feed {
@@ -33,39 +32,85 @@
     }
 
     .slide-content {
-      text-align: center;
       z-index: 1;
+      text-align: center;
     }
 
     .overlay {
       position: absolute;
       top: 0;
+      bottom: 0;
       left: 0;
       right: 0;
-      bottom: 0;
       z-index: 0;
     }
   </style>
 </head>
 <body>
 
-  <script type='text/javascript' src='//pl26408161.profitableratecpm.com/f9/df/f2/f9dff23c91b1b7e6f98cd017d227178e.js'></script>
+ <script type='text/javascript' src='//pl26408161.profitableratecpm.com/f9/df/f2/f9dff23c91b1b7e6f98cd017d227178e.js'></script>
 
   <div id="feed">
-    <div class="ad-slide">
+    <div class="ad-slide" data-index="0">
       <div class="slide-content">Ad 1</div>
       <div class="overlay"></div>
     </div>
-    <div class="ad-slide">
+    <div class="ad-slide" data-index="1">
       <div class="slide-content">Ad 2</div>
       <div class="overlay"></div>
     </div>
-    <div class="ad-slide">
+    <div class="ad-slide" data-index="2">
       <div class="slide-content">Ad 3</div>
       <div class="overlay"></div>
     </div>
-    <!-- Add more ad slides as needed -->
   </div>
+
+  <script>
+    const feed = document.getElementById('feed');
+    const slides = document.querySelectorAll('.ad-slide');
+    let currentSlide = 0;
+    let slideTimers = Array(slides.length).fill(null);
+    let rewarded = Array(slides.length).fill(false);
+
+    function handleScroll() {
+      const newSlide = Math.round(feed.scrollTop / window.innerHeight);
+      if (newSlide !== currentSlide) {
+        stopTimer(currentSlide);
+        startTimer(newSlide);
+        currentSlide = newSlide;
+      }
+    }
+
+    function startTimer(index) {
+      if (rewarded[index]) return;
+      slideTimers[index] = setTimeout(() => {
+        rewarded[index] = true;
+        console.log(`✅ Ad ${index + 1} viewed! Reward granted.`);
+        
+        // 🔄 Communicate to the app or backend
+        if (window.ReactNativeWebView) {
+          window.ReactNativeWebView.postMessage("adViewed");
+        }
+        // Else: send reward to your C# WebView here
+        // window.external.notify("adViewed");
+
+      }, 15000); // 15 seconds required
+    }
+
+    function stopTimer(index) {
+      if (slideTimers[index]) {
+        clearTimeout(slideTimers[index]);
+        slideTimers[index] = null;
+      }
+    }
+
+    feed.addEventListener('scroll', () => {
+      window.requestAnimationFrame(handleScroll);
+    });
+
+    // Start tracking the first slide immediately
+    startTimer(0);
+  </script>
 
 </body>
 </html>
