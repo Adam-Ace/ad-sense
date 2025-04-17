@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>YouTube Shorts Scroller</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <title>Watch Ads to Earn Time</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <style>
     html, body {
       margin: 0;
@@ -11,12 +12,16 @@
       height: 100%;
       overflow: hidden;
       background: #000;
+      font-family: sans-serif;
     }
+
     #shorts-feed {
       height: 100vh;
       overflow-y: scroll;
       scroll-snap-type: y mandatory;
+      -webkit-overflow-scrolling: touch;
     }
+
     .short-wrapper {
       height: 100vh;
       scroll-snap-align: start;
@@ -24,53 +29,79 @@
       justify-content: center;
       align-items: center;
       background: black;
+      position: relative;
     }
+
     iframe {
       width: 100vw;
       height: 100vh;
       border: none;
     }
+
+    /* Optional: A transparent overlay for future "Watch Complete" detection */
+    .overlay {
+      position: absolute;
+      bottom: 20px;
+      width: 100%;
+      text-align: center;
+      color: white;
+      font-size: 14px;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 10px;
+    }
   </style>
 </head>
+
 <body>
   <div id="shorts-feed"></div>
 
-  <script>
-    const shortsFeed = document.getElementById('shorts-feed');
+  <!-- Optional: Adsterra or any ad platform script here -->
+  <!-- Paste your video ad script directly here -->
+  <!-- Example placeholder for Adsterra -->
+  <!-- <script type="text/javascript" src="https://example.com/path/to/adsterra-script.js"></script> -->
 
-    // Replace these with your favorite or random YouTube Shorts IDs
+  <script>
+    const shortsFeed = document.getElementById("shorts-feed");
+
     const youtubeShorts = [
-      "-H7oAo2GURtwU7i6", // cat
-      "hb2R5bjqHV93xYxw", // meme
-      "xzycBorxUxcpUXg3", // animation
-      "bfFA0vdc1axv_M1x", // music
-      "piweOL-RZAal_Rw8", // chill vibes
-      "3VgBD3aFfNM", // funny
-      "0NOZRXNAAeE", // more fun
+      "3VgBD3aFfNM",  // funny
+      "0NOZRXNAAeE",  // fun
+      "hb2R5bjqHV93xYxw",  // meme
+      "xzycBorxUxcpUXg3",  // animation
+      "bfFA0vdc1axv_M1x",  // music
+      "piweOL-RZAal_Rw8",  // chill
     ];
 
     function createShort(id) {
-      const wrapper = document.createElement('div');
-      wrapper.className = 'short-wrapper';
+      const wrapper = document.createElement("div");
+      wrapper.className = "short-wrapper";
 
-      const iframe = document.createElement('iframe');
+      const iframe = document.createElement("iframe");
       iframe.src = `https://www.youtube.com/embed/${id}?autoplay=1&mute=1&playsinline=1&controls=0&loop=1&rel=0`;
       iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
       iframe.allowFullscreen = true;
 
+      const overlay = document.createElement("div");
+      overlay.className = "overlay";
+      overlay.textContent = "Scroll to watch more ads and earn more time";
+
       wrapper.appendChild(iframe);
+      wrapper.appendChild(overlay);
       return wrapper;
     }
 
     function loadShorts() {
-      youtubeShorts.forEach(id => {
-        const el = createShort(id);
-        shortsFeed.appendChild(el);
+      youtubeShorts.forEach((id) => {
+        const short = createShort(id);
+        shortsFeed.appendChild(short);
       });
     }
 
     loadShorts();
   </script>
+</body>
+</html>
+
 </body>
 </html>
 
