@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Watch Ads to Earn Time</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
+  <meta charset="UTF-8">
+  <title>Ad Feed</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     html, body {
       margin: 0;
@@ -12,99 +11,62 @@
       height: 100%;
       overflow: hidden;
       background: #000;
-      font-family: sans-serif;
+      font-family: Arial, sans-serif;
     }
 
-    #shorts-feed {
+    #feed {
       height: 100vh;
       overflow-y: scroll;
       scroll-snap-type: y mandatory;
-      -webkit-overflow-scrolling: touch;
     }
 
-    .short-wrapper {
+    .ad-slide {
       height: 100vh;
       scroll-snap-align: start;
       display: flex;
       justify-content: center;
       align-items: center;
-      background: black;
+      background: #111;
+      color: #fff;
+      font-size: 2rem;
       position: relative;
     }
 
-    iframe {
-      width: 100vw;
-      height: 100vh;
-      border: none;
+    .slide-content {
+      text-align: center;
+      z-index: 1;
     }
 
     .overlay {
       position: absolute;
-      bottom: 20px;
-      width: 100%;
-      text-align: center;
-      color: white;
-      font-size: 14px;
-      background: rgba(0, 0, 0, 0.4);
-      padding: 10px;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 0;
     }
   </style>
 </head>
-
 <body>
-  <div id="shorts-feed"></div>
 
-  <!-- ✅ Adsterra VIDEO AD DEMO SCRIPT -->
-  <script type="text/javascript">
-    atOptions = {
-      'key': '9f28e7f09f1d4dba1a2c58d95e7274d4',
-      'format': 'video',
-      'height': 400,
-      'width': 300,
-      'params': {}
-    };
-    document.write('<script type="text/javascript" src="https://www.profitabledisplaynetwork.com/9f28e7f09f1d4dba1a2c58d95e7274d4/invoke.js"><\/script>');
-  </script>
+  <script type='text/javascript' src='//pl26408161.profitableratecpm.com/f9/df/f2/f9dff23c91b1b7e6f98cd017d227178e.js'></script>
 
-  <script>
-    const shortsFeed = document.getElementById("shorts-feed");
+  <div id="feed">
+    <div class="ad-slide">
+      <div class="slide-content">Ad 1</div>
+      <div class="overlay"></div>
+    </div>
+    <div class="ad-slide">
+      <div class="slide-content">Ad 2</div>
+      <div class="overlay"></div>
+    </div>
+    <div class="ad-slide">
+      <div class="slide-content">Ad 3</div>
+      <div class="overlay"></div>
+    </div>
+    <!-- Add more ad slides as needed -->
+  </div>
 
-    const youtubeShorts = [
-      "3VgBD3aFfNM",  // funny
-      "0NOZRXNAAeE",  // fun
-      "hb2R5bjqHV93xYxw",  // meme
-      "xzycBorxUxcpUXg3",  // animation
-      "bfFA0vdc1axv_M1x",  // music
-      "piweOL-RZAal_Rw8",  // chill
-    ];
-
-    function createShort(id) {
-      const wrapper = document.createElement("div");
-      wrapper.className = "short-wrapper";
-
-      const iframe = document.createElement("iframe");
-      iframe.src = `https://www.youtube.com/embed/${id}?autoplay=1&mute=1&playsinline=1&controls=0&loop=1&rel=0`;
-      iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
-      iframe.allowFullscreen = true;
-
-      const overlay = document.createElement("div");
-      overlay.className = "overlay";
-      overlay.textContent = "Scroll to watch more ads and earn more time";
-
-      wrapper.appendChild(iframe);
-      wrapper.appendChild(overlay);
-      return wrapper;
-    }
-
-    function loadShorts() {
-      youtubeShorts.forEach((id) => {
-        const short = createShort(id);
-        shortsFeed.appendChild(short);
-      });
-    }
-
-    loadShorts();
-  </script>
 </body>
 </html>
 
