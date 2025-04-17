@@ -112,7 +112,7 @@
       const scrollHeight = feed.scrollHeight;
       const scrollPosition = feed.scrollTop + feed.clientHeight;
 
-      // Load more ads when nearing the bottom
+      // If the user has scrolled near the bottom, load more ads
       if (scrollHeight - scrollPosition <= 200) {
         createAdSlide(adIndex);
       }
@@ -142,15 +142,28 @@
       }
     }
 
+    // Auto-scroll function that mimics random mouse wheel scrolling
+    function autoScroll() {
+      const randomScrollAmount = Math.floor(Math.random() * 300) + 200; // Random scroll between 200px and 500px
+      feed.scrollTop += randomScrollAmount;
+
+      // Trigger the lazy loading of ads when scrolling
+      handleScroll();
+    }
+
     // Preload the first ad
     preloadAd();
 
     // Initial ad load
     createAdSlide(adIndex);
+
+    // Set an interval to auto-scroll every 15 seconds
+    setInterval(autoScroll, 15000);
   </script>
 
 </body>
 </html>
+
 
 
 
