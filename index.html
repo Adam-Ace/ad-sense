@@ -75,9 +75,8 @@
       "https://www.profitableratecpm.com/hihjwvckn?key=40d0024813cadf56aa2ab25193185497",
       "https://www.profitableratecpm.com/i24e0ymxs?key=25090613c5042a0c38f0c79722fbc8cc",
       "https://www.profitableratecpm.com/v0ws19n2z?key=1804475b9e7a7226cd0860c709b36c82",
-      "https://www.profitableratecpm.com/zk6cc4ipf7?key=94601030fbe4e76a26fed1a09c386156"
-      
-      
+      "https://www.profitableratecpm.com/zk6cc4ipf7?key=94601030fbe4e76a26fed1a09c386156",
+      "https://www.profitableratecpm.com/itci30cz7j?key=ad5c8ac5f4431a3dce1530d10ce2740f"
     ];
     let adIndex = 0;
 
@@ -113,7 +112,7 @@
       const scrollHeight = feed.scrollHeight;
       const scrollPosition = feed.scrollTop + feed.clientHeight;
 
-      // If the user has scrolled near the bottom, load more ads
+      // Load more ads when nearing the bottom
       if (scrollHeight - scrollPosition <= 200) {
         createAdSlide(adIndex);
       }
@@ -121,6 +120,30 @@
 
     // Attach scroll event listener
     feed.addEventListener('scroll', handleScroll);
+
+    // Preload next ad in the background
+    function preloadAd() {
+      const preloadContainer = document.createElement('div');
+      preloadContainer.className = 'preload';
+
+      const iframe = document.createElement('iframe');
+      iframe.src = adLinks[adIndex];
+      iframe.width = '100%';
+      iframe.height = '100%';
+      iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
+      iframe.allowFullscreen = true;
+
+      preloadContainer.appendChild(iframe);
+      document.body.appendChild(preloadContainer);
+
+      adIndex++;
+      if (adIndex >= adLinks.length) {
+        adIndex = 0;  // Reset ad index to loop ads if all links are used.
+      }
+    }
+
+    // Preload the first ad
+    preloadAd();
 
     // Initial ad load
     createAdSlide(adIndex);
